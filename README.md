@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./logo.png" width="200" alt="Logo" />
+</p>
+
 # Insights
 
 **A Strapi plugin to capture visitor insights such as source, medium, campaign, path, IP, user agent, and platform (app/website).**
