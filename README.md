@@ -13,7 +13,6 @@
 - [Description](#description)  
 - [How to Install](#how-to-install)  
 - [Usage](#usage)  
-- [Configuration](#configuration)  
 - [Captured Parameters](#captured-parameters)  
 - [Ignore Admin Routes](#ignore-admin-routes)  
 - [Example Frontend Request with UTM Parameters](#example-frontend-request-with-utm-parameters)
@@ -62,21 +61,6 @@ npm run develop
 ## Usage
 
 The plugin automatically tracks requests when configured. You do **not** need to manually call any API. Every request to your frontend APIs will be logged in the plugin's content-type (`Insights`).
-
----
-
-## Configuration
-
-Add the plugin middleware to your **Strapi middlewares** in `config/middlewares.ts`:
-
-```ts
-export default [
-    // Plugin middleware
-    'plugin::insights.insights',
-];
-```
-
-Optional: Configure ignored routes inside the middleware if needed (e.g., `/admin`, `/content-manager`, `/users-permissions`).  
 
 ---
 
