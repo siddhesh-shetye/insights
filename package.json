@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.2",
   "keywords": [],
   "type": "commonjs",
   "exports": {
@@ -58,11 +58,11 @@
   },
   "strapi": {
     "kind": "plugin",
-    "name": "insights",
-    "displayName": "insights",
+    "name": "insights-strapi",
+    "displayName": "Insights Strapi",
     "description": "A Strapi plugin to capture visitor insights such as source, medium, campaign, path, IP, user agent, and platform (app/website)."
   },
-  "name": "insights",
+  "name": "insights-strapi",
   "description": "A Strapi plugin to capture visitor insights such as source, medium, campaign, path, IP, user agent, and platform (app/website).",
   "license": "MIT",
   "repository": {
@@ -73,5 +73,6 @@
     "url": "https://github.com/siddhesh-shetye/insights/issues"
   },
   "homepage": "https://github.com/siddhesh-shetye/insights#readme",
-  "author": "Siddhesh Shetye <siddhesh.2511shetye@gmail.com>"
+  "author": "Siddhesh Shetye <siddhesh.2511shetye@gmail.com>",
+  "main": "index.js"
 }
