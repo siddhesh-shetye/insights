@@ -2,6 +2,11 @@ import type { Middleware } from 'koa';
 
 const insights: Middleware = async (ctx, next) => {
     try {
+        // Respect environment flag
+        if (process.env.INSIGHTS_ENABLED !== 'true') {
+            return await next();
+        }
+        
         // --- Ignore internal Strapi APIs ---
         const ignoredPrefixes = ['/admin', '/content-manager', '/users-permissions', '/_health'];
         if (ignoredPrefixes.some(prefix => ctx.url.startsWith(prefix))) {

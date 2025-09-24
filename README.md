@@ -13,6 +13,7 @@
 - [Description](#description)  
 - [How to Install](#how-to-install)  
 - [Usage](#usage)  
+- [Environment Variable](#environment-variable)  
 - [Captured Parameters](#captured-parameters)  
 - [Ignore Admin Routes](#ignore-admin-routes)  
 - [Example Frontend Request with UTM Parameters](#example-frontend-request-with-utm-parameters)
@@ -61,6 +62,19 @@ npm run develop
 ## Usage
 
 The plugin automatically tracks requests when configured. You do **not** need to manually call any API. Every request to your frontend APIs will be logged in the plugin's content-type (`Insights`).
+
+---
+
+### Environment Variable
+
+To enable/disable the plugin globally, add this to your `.env` file:
+
+```env
+INSIGHTS_ENABLED=true
+```
+
+- `INSIGHTS_ENABLED=true` → Insights tracking is **enabled** (default behavior).  
+- `INSIGHTS_ENABLED=false` → Insights tracking is **disabled** (no requests will be logged).  
 
 ---
 
