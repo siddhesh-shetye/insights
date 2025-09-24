@@ -21,39 +21,39 @@ export default {
   "attributes": {
     "source": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "medium": {
       "type": "string",
-      "required": true
+      "required": false
     },
-    "campagin": {
+    "campaign": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "term": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "content": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "path": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "ip": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "user_agent": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "via": {
       "type": "string",
-      "required": true
+      "required": false
     }
   }
 };
