@@ -8,4 +8,12 @@ export default [
       policies: [],
     },
   },
+  {
+    method: 'GET',
+    path: '/stats',
+    handler: 'controller.stats',
+    config: {
+      policies: [],
+    },
+  },
 ];
