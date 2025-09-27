@@ -3,36 +3,114 @@ import { factories } from '@strapi/strapi';
 const modelName = "plugin::insights-strapi.insight";
 
 export default factories.createCoreController(modelName, ({ strapi }) => ({
-    async stats(ctx) {
+    /**
+     * GET /api/insights-strapi/stats
+     * Returns summary statistics for the dashboard cards
+     */
+    async getStats(ctx) {
         try {
-            const data = {
-                totalVisits: 2847,
-                uniqueSources: 12,
-                campaigns: 8,
-                today: 34,
-                trends: {
-                    totalVisits: '+12.5%',
-                    uniqueSources: '+2',
-                    campaigns: '+1',
-                    today: '+8.2%'
-                },
-                chartData: [
-                    { date: '2025-09-20', count: 12 },
-                    { date: '2025-09-21', count: 8 },
-                    { date: '2025-09-22', count: 15 },
-                    { date: '2025-09-23', count: 22 },
-                    { date: '2025-09-24', count: 18 },
-                    { date: '2025-09-25', count: 66 },
-                    { date: '2025-09-26', count: 88 },
-                    { date: '2025-09-27', count: 122 },
-                    { date: '2025-09-28', count: 56 },
-                    { date: '2025-09-29', count: 32 }
-                ]
+            let knex = strapi.db.connection;
+
+            // Get current date ranges
+            const now = new Date();
+            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - 7);
+            const startOfLastWeek = new Date(now);
+            startOfLastWeek.setDate(now.getDate() - 14);
+
+            // Total insights (all time)
+            const totalVisits = await strapi.db.query(modelName).count();
+
+            // Total insights last week (for comparison)
+            const totalVisitsLastWeek = await strapi.db.query(modelName).count({
+                where: {
+                    createdAt: {
+                        $gte: startOfLastWeek,
+                        $lt: startOfWeek
+                    }
+                }
+            });
+
+            // Get unique sources using Knex
+            const uniqueSourcesResult = await knex('insights')
+                .countDistinct('source as count')
+                .whereNotNull('source')
+                .andWhere('source', '!=', '')
+                .first();
+
+            const uniqueSourcesLastWeekResult = await knex('insights')
+                .countDistinct('source as count')
+                .whereNotNull('source')
+                .andWhere('source', '!=', '')
+                .andWhere('created_at', '>=', startOfLastWeek.toISOString())
+                .andWhere('created_at', '<', startOfWeek.toISOString())
+                .first();
+
+            const campaignsResult = await knex('insights')
+                .countDistinct('campaign as count')
+                .whereNotNull('campaign')
+                .andWhere('campaign', '!=', '')
+                .first();
+
+            const campaignsLastWeekResult = await knex('insights')
+                .countDistinct('campaign as count')
+                .whereNotNull('campaign')
+                .andWhere('campaign', '!=', '')
+                .andWhere('created_at', '>=', startOfLastWeek.toISOString())
+                .andWhere('created_at', '<', startOfWeek.toISOString())
+                .first();
+
+            // Extract counts from query results
+            const uniqueSources = Number(uniqueSourcesResult.count) || 0;
+            const uniqueSourcesLastWeek = Number(uniqueSourcesLastWeekResult.count) || 0;
+            const campaigns = Number(campaignsResult.count) || 0;
+            const campaignsLastWeek = Number(campaignsLastWeekResult.count) || 0;
+
+            // Today's visitors
+            const todayVisitors = await strapi.db.query(modelName).count({
+                where: {
+                    createdAt: {
+                        $gte: startOfToday
+                    }
+                }
+            });
+
+            // Yesterday's visitors (for comparison)
+            const startOfYesterday = new Date(startOfToday);
+            startOfYesterday.setDate(startOfToday.getDate() - 1);
+            const yesterdayVisitors = await strapi.db.query(modelName).count({
+                where: {
+                    createdAt: {
+                        $gte: startOfYesterday,
+                        $lt: startOfToday
+                    }
+                }
+            });
+
+            // Calculate percentage changes
+            const calculateChange = (current, previous) => {
+                if (previous === 0) return current > 0 ? '+100%' : '0%';
+                const change = ((current - previous) / previous) * 100;
+                return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
             };
 
-            return data;
-        } catch (error) {
-            return ctx.badRequest('An error occurred while retrieving the form', error.message);
+            const response = {
+                totalVisits,
+                uniqueSources,
+                campaigns,
+                today: todayVisitors,
+                trends: {
+                    totalVisits: calculateChange(totalVisits, totalVisitsLastWeek),
+                    uniqueSources: calculateChange(uniqueSources, uniqueSourcesLastWeek),
+                    campaigns: calculateChange(campaigns, campaignsLastWeek),
+                    today: calculateChange(todayVisitors, yesterdayVisitors)
+                }
+            };
+
+            ctx.body = response;
+        } catch (err) {
+            ctx.throw(500, `Failed to fetch stats: ${err.message}`);
         }
-    }
+    },
 }));

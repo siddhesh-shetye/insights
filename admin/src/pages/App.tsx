@@ -1,80 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Grid, Card, CardHeader, CardBody, Flex, Badge, Divider } from "@strapi/design-system";
+import { Box, Typography, Card, Flex, Divider, Grid } from "@strapi/design-system";
 import { useFetchClient } from "@strapi/strapi/admin";
-import { ChartPie, Globe, User, File, TrendUp, ArrowDown, Calendar } from "@strapi/icons";
+import { ChartPie, Calendar } from "@strapi/icons";
 import StatsChart from '../components/StatsChart';
 import StatsTable from '../components/StatsTable';
-
-interface StatCardProps {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  change?: string;
-  changeType?: 'positive' | 'negative' | 'neutral';
-}
-
-const StatCard: React.FC<StatCardProps> = ({
-  icon,
-  label,
-  value,
-  change,
-  changeType = 'neutral'
-}) => {
-  const getChangeVariant = () => {
-    switch (changeType) {
-      case 'positive': return 'success';
-      case 'negative': return 'danger';
-      default: return 'neutral';
-    }
-  };
-
-  const getTrendIcon = () => {
-    switch (changeType) {
-      case 'positive': return <TrendUp width={12} height={12} />;
-      case 'negative': return <ArrowDown width={12} height={12} />;
-      default: return <TrendUp width={12} height={12} />;
-    }
-  };
-
-  return (
-    <Card padding={4}>
-      <CardHeader paddingBottom={3}>
-        <Flex alignItems="center" gap={3}>
-          <Box
-            background="primary100"
-            borderRadius={2}
-            padding={2}
-          >
-            {icon}
-          </Box>
-          <Typography variant="omega" fontWeight="semiBold" textColor="neutral600">
-            {label.toUpperCase()}
-          </Typography>
-        </Flex>
-      </CardHeader>
-
-      <CardBody paddingTop={0}>
-        <Flex direction="column" gap={2}>
-          <Typography variant="alpha" fontWeight="bold">
-            {value}
-          </Typography>
-
-          {change && (
-            <Flex alignItems="center" gap={2}>
-              {getTrendIcon()}
-              <Badge variant={getChangeVariant()} size="S">
-                {change}
-              </Badge>
-              <Typography variant="pi" textColor="neutral500">
-                vs last week
-              </Typography>
-            </Flex>
-          )}
-        </Flex>
-      </CardBody>
-    </Card>
-  );
-};
+import StatsGrid from '../components/StatsGrid';
+import StatsPieChart from '../components/StatsPieChart';
 
 const App = () => {
   const { get } = useFetchClient();
@@ -83,16 +14,19 @@ const App = () => {
   const [statsData, setStatsData] = useState<any>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [tableData, setTableData] = useState<any[]>([]);
+  const [pieChartData, setPieChartData] = useState<any[]>([]);
 
   // Separate loading states
   const [statsLoading, setStatsLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
+  const [pieChartLoading, setPieChartLoading] = useState(true);
 
   // Separate error states
   const [statsError, setStatsError] = useState<string | null>(null);
   const [chartError, setChartError] = useState<string | null>(null);
   const [tableError, setTableError] = useState<string | null>(null);
+  const [pieChartError, setPieChartError] = useState<string | null>(null);
 
   useEffect(() => {
     // Function to fetch stats data
@@ -140,11 +74,27 @@ const App = () => {
       }
     };
 
+    // Function to fetch pie chart data (traffic sources)
+    const fetchPieChartData = async () => {
+      try {
+        setPieChartLoading(true);
+        setPieChartError(null);
+        const { data } = await get("/insights-strapi/sources");
+        setPieChartData(data);
+      } catch (err) {
+        console.error("Failed to load pie chart data", err);
+        setPieChartError("Failed to load traffic sources data");
+      } finally {
+        setPieChartLoading(false);
+      }
+    };
+
     // Run all API calls simultaneously
     Promise.allSettled([
       fetchStats(),
       fetchChartData(),
-      fetchTableData()
+      fetchTableData(),
+      fetchPieChartData()
     ]);
 
   }, [get]);
@@ -191,97 +141,49 @@ const App = () => {
         <Typography variant="epsilon" textColor="neutral600" marginBottom={3}>
           Monitor your website performance and visitor analytics in real-time
         </Typography>
-
-        <Flex alignItems="center" gap={2}>
-          <Calendar width={16} height={16} />
-          <Typography variant="pi" textColor="neutral500">
-            Last updated: {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </Typography>
-        </Flex>
       </Box>
 
       {/* Stats Grid */}
-      <Grid.Root gap={4} marginBottom={8}>
-        {statsLoading ? (
-          <Grid.Item col={12}>
-            <LoadingBox height="150px" />
-          </Grid.Item>
-        ) : statsError ? (
-          <Grid.Item col={12}>
-            <ErrorBox error={statsError} height="150px" />
-          </Grid.Item>
-        ) : (
-          <>
-            <Grid.Item col={3}>
-              <StatCard
-                icon={<ChartPie />}
-                label="Total Visits"
-                value={statsData?.totalVisits?.toLocaleString() ?? "—"}
-                change={statsData?.trends?.totalVisits}
-                changeType="negative"
-              />
-            </Grid.Item>
-
-            <Grid.Item col={3}>
-              <StatCard
-                icon={<Globe />}
-                label="Traffic Sources"
-                value={statsData?.uniqueSources ?? "—"}
-                change={statsData?.trends?.uniqueSources}
-                changeType="positive"
-              />
-            </Grid.Item>
-
-            <Grid.Item col={3}>
-              <StatCard
-                icon={<File />}
-                label="Active Campaigns"
-                value={statsData?.campaigns ?? "—"}
-                change={statsData?.trends?.campaigns}
-                changeType="positive"
-              />
-            </Grid.Item>
-
-            <Grid.Item col={3}>
-              <StatCard
-                icon={<User />}
-                label="Today's Visitors"
-                value={statsData?.today ?? "—"}
-                change={statsData?.trends?.today}
-                changeType="positive"
-              />
-            </Grid.Item>
-          </>
-        )}
-      </Grid.Root>
+      <StatsGrid
+        statsData={statsData}
+        statsLoading={statsLoading}
+        statsError={statsError}
+      />
 
       <Divider marginBottom={6} />
 
-      {/* Chart Section */}
-      <Box marginBottom={8}>
-        {chartLoading ? (
-          <Card padding={4}>
-            <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-              Visitor Trends
-            </Typography>
-            <LoadingBox height="300px" />
-          </Card>
-        ) : chartError ? (
-          <Card padding={4}>
-            <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-              Visitor Trends
-            </Typography>
-            <ErrorBox error={chartError} height="300px" />
-          </Card>
-        ) : (
-          <StatsChart data={chartData} />
-        )}
-      </Box>
+      {/* Charts Section - Side by Side */}
+      <Grid.Root gap={2} marginBottom={8}>
+        <Grid.Item col={8}>
+          {/* Line Chart */}
+          {chartLoading ? (
+            <Card padding={4}>
+              <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
+                Visitor Trends
+              </Typography>
+              <LoadingBox height="300px" />
+            </Card>
+          ) : chartError ? (
+            <Card padding={4}>
+              <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
+                Visitor Trends
+              </Typography>
+              <ErrorBox error={chartError} height="300px" />
+            </Card>
+          ) : (
+            <StatsChart data={chartData} />
+          )}
+        </Grid.Item>
+
+        <Grid.Item col={4}>
+          {/* Pie Chart */}
+          <StatsPieChart
+            data={pieChartData}
+            isLoading={pieChartLoading}
+            error={pieChartError}
+          />
+        </Grid.Item>
+      </Grid.Root>
 
       <Divider marginBottom={6} />
 
