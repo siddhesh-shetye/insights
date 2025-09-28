@@ -40,15 +40,17 @@ const CustomTooltip = ({ active, payload }: any) => {
                     border: '1px solid #e2e8f0'
                 }}
             >
-                <Typography variant="omega" fontWeight="semiBold" marginBottom={1}>
+                <Typography variant="omega" fontWeight="semiBold" marginBottom={3}>
                     {data.payload.source}
                 </Typography>
-                <Typography variant="pi" textColor="neutral600">
-                    Visits: {data.payload.count.toLocaleString()}
-                </Typography>
-                <Typography variant="pi" textColor="neutral600">
-                    Share: {data.payload.percentage?.toFixed(1)}%
-                </Typography>
+                <Flex direction="column" gap={1}>
+                    <Typography variant="pi" textColor="neutral600">
+                        Visits: {data.payload.count.toLocaleString()}
+                    </Typography>
+                    <Typography variant="pi" textColor="neutral600">
+                        Share: {data.payload.percentage?.toFixed(1)}%
+                    </Typography>
+                </Flex>
             </Box>
         );
     }

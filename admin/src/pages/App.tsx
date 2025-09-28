@@ -3,7 +3,6 @@ import { Box, Typography, Card, Flex, Divider, Grid } from "@strapi/design-syste
 import { useFetchClient } from "@strapi/strapi/admin";
 import { ChartPie, Calendar } from "@strapi/icons";
 import StatsChart from '../components/StatsChart';
-import StatsTable from '../components/StatsTable';
 import StatsGrid from '../components/StatsGrid';
 import StatsPieChart from '../components/StatsPieChart';
 
@@ -13,19 +12,16 @@ const App = () => {
   // Separate state for each section
   const [statsData, setStatsData] = useState<any>(null);
   const [chartData, setChartData] = useState<any[]>([]);
-  const [tableData, setTableData] = useState<any[]>([]);
   const [pieChartData, setPieChartData] = useState<any[]>([]);
 
   // Separate loading states
   const [statsLoading, setStatsLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
-  const [tableLoading, setTableLoading] = useState(true);
   const [pieChartLoading, setPieChartLoading] = useState(true);
 
   // Separate error states
   const [statsError, setStatsError] = useState<string | null>(null);
   const [chartError, setChartError] = useState<string | null>(null);
-  const [tableError, setTableError] = useState<string | null>(null);
   const [pieChartError, setPieChartError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -59,27 +55,12 @@ const App = () => {
       }
     };
 
-    // Function to fetch table data
-    const fetchTableData = async () => {
-      try {
-        setTableLoading(true);
-        setTableError(null);
-        const { data } = await get("/insights-strapi/table");
-        setTableData(data);
-      } catch (err) {
-        console.error("Failed to load table data", err);
-        setTableError("Failed to load table data");
-      } finally {
-        setTableLoading(false);
-      }
-    };
-
     // Function to fetch pie chart data (traffic sources)
     const fetchPieChartData = async () => {
       try {
         setPieChartLoading(true);
         setPieChartError(null);
-        const { data } = await get("/insights-strapi/sources");
+        const { data } = await get("/insights-strapi/source");
         setPieChartData(data);
       } catch (err) {
         console.error("Failed to load pie chart data", err);
@@ -93,7 +74,6 @@ const App = () => {
     Promise.allSettled([
       fetchStats(),
       fetchChartData(),
-      fetchTableData(),
       fetchPieChartData()
     ]);
 
@@ -152,61 +132,33 @@ const App = () => {
 
       <Divider marginBottom={6} />
 
-      {/* Charts Section - Side by Side */}
-      <Grid.Root gap={2} marginBottom={8}>
-        <Grid.Item col={8}>
-          {/* Line Chart */}
-          {chartLoading ? (
-            <Card padding={4}>
-              <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-                Visitor Trends
-              </Typography>
-              <LoadingBox height="300px" />
-            </Card>
-          ) : chartError ? (
-            <Card padding={4}>
-              <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-                Visitor Trends
-              </Typography>
-              <ErrorBox error={chartError} height="300px" />
-            </Card>
-          ) : (
-            <StatsChart data={chartData} />
-          )}
-        </Grid.Item>
-
-        <Grid.Item col={4}>
-          {/* Pie Chart */}
-          <StatsPieChart
-            data={pieChartData}
-            isLoading={pieChartLoading}
-            error={pieChartError}
-          />
-        </Grid.Item>
-      </Grid.Root>
+      {/* Line Chart */}
+      {chartLoading ? (
+        <Card padding={4}>
+          <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
+            Visitor Trends
+          </Typography>
+          <LoadingBox height="300px" />
+        </Card>
+      ) : chartError ? (
+        <Card padding={4}>
+          <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
+            Visitor Trends
+          </Typography>
+          <ErrorBox error={chartError} height="300px" />
+        </Card>
+      ) : (
+        <StatsChart data={chartData} />
+      )}
 
       <Divider marginBottom={6} />
 
-      {/* Stats Table */}
-      <Box>
-        {tableLoading ? (
-          <Card padding={4}>
-            <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-              Detailed Analytics
-            </Typography>
-            <LoadingBox height="400px" />
-          </Card>
-        ) : tableError ? (
-          <Card padding={4}>
-            <Typography variant="beta" fontWeight="semiBold" marginBottom={4}>
-              Detailed Analytics
-            </Typography>
-            <ErrorBox error={tableError} height="400px" />
-          </Card>
-        ) : (
-          <StatsTable data={tableData} />
-        )}
-      </Box>
+      {/* Pie Chart */}
+      <StatsPieChart
+        data={pieChartData}
+        isLoading={pieChartLoading}
+        error={pieChartError}
+      />
     </Box>
   );
 };

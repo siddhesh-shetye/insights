@@ -113,4 +113,84 @@ export default factories.createCoreController(modelName, ({ strapi }) => ({
             ctx.throw(500, `Failed to fetch stats: ${err.message}`);
         }
     },
+
+    /**
+     * GET /api/insights-strapi/chart
+     * Returns time-series data for the line chart
+     */
+    async getChart(ctx) {
+        try {
+            // Get last 7 days of data
+            const daysAgo = new Date();
+            daysAgo.setDate(daysAgo.getDate() - 7);
+
+            // Format date as YYYY-MM-DD for SQL query
+            const formattedDate = daysAgo.toISOString().split('T')[0];
+
+            // Raw query to get daily visit counts
+            const dailyVisitsResult = await strapi.db.connection.raw(`
+                SELECT 
+                DATE(created_at) as date,
+                COUNT(*) as count
+                FROM insights 
+                WHERE created_at >= ?
+                GROUP BY DATE(created_at)
+                ORDER BY date ASC
+            `, [formattedDate]);
+
+            let dailyVisits = [];
+            if (dailyVisitsResult.rows) {
+                // PostgreSQL returns { rows: [...] }
+                dailyVisits = dailyVisitsResult.rows;
+            }
+
+            // Format data for the chart
+            let chartData = dailyVisits.map(row => {
+                return {
+                    date: row.date,
+                    count: Number(row.count)
+                };
+            });
+
+            ctx.body = chartData;
+        } catch (err) {
+            ctx.throw(500, `Failed to fetch chart: ${err.message}`);
+        }
+    },
+
+    async getSource(ctx) {
+        try {
+            // Get last 30 days timestamp
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const timestampThirtyDaysAgo = thirtyDaysAgo.toISOString().split('T')[0];
+
+            // Get traffic sources with counts for last 30 days using timestamp
+            const sourcesResult = await strapi.db.connection.raw(`
+                SELECT 
+                COALESCE(NULLIF(source, ''), 'Direct') as source,
+                COUNT(*) as count
+                FROM insights 
+                WHERE created_at >= ?
+                GROUP BY COALESCE(NULLIF(source, ''), 'Direct')
+                ORDER BY count DESC
+                LIMIT 10
+            `, [timestampThirtyDaysAgo]);
+
+            // PostgreSQL returns { rows: [...] }
+            const sourcesData = sourcesResult.rows || [];
+
+            // Format data for the pie chart
+            let pieChartData = sourcesData.map(row => {
+                return {
+                    source: row.source,
+                    count: Number(row.count)
+                };
+            });
+
+            ctx.body = pieChartData;
+        } catch (err) {
+            ctx.throw(500, `Failed to fetch source: ${err.message}`);
+        }
+    },
 }));
