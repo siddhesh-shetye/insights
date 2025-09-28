@@ -120,9 +120,9 @@ export default factories.createCoreController(modelName, ({ strapi }) => ({
      */
     async getChart(ctx) {
         try {
-            // Get last 7 days of data
+            // Get last 10 days of data
             const daysAgo = new Date();
-            daysAgo.setDate(daysAgo.getDate() - 7);
+            daysAgo.setDate(daysAgo.getDate() - 10);
 
             // Format date as YYYY-MM-DD for SQL query
             const formattedDate = daysAgo.toISOString().split('T')[0];
