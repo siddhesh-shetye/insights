@@ -190,29 +190,40 @@ const StatsPieChart: React.FC<StatsPieChartProps> = ({
                     <Typography variant="delta" fontWeight="semiBold" marginBottom={3}>
                         Source Breakdown
                     </Typography>
-                    <Flex direction="column" gap={3}>
+                    <Flex direction="column" gap={3} style={{ width: '100%' }}>
                         {chartData.map((entry, index) => (
-                            <Flex key={index} alignItems="center" justifyContent="space-between" padding={2} background="neutral100" borderRadius="4px">
-                                <Flex alignItems="center" gap={3}>
-                                    <Box
-                                        width="16px"
-                                        height="16px"
-                                        borderRadius="4px"
-                                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                                    />
-                                    <Typography variant="omega" fontWeight="semiBold">
-                                        {entry.source}
-                                    </Typography>
+                            <Box
+                                key={index}
+                                padding={3}
+                                background="neutral100"
+                                borderRadius="6px"
+                                style={{ width: '100%' }}
+                            >
+                                <Flex alignItems="center" justifyContent="space-between" style={{ width: '100%' }}>
+                                    <Flex alignItems="center" gap={3} style={{ flex: 1, minWidth: 0 }}>
+                                        <Box
+                                            width="16px"
+                                            height="16px"
+                                            borderRadius="4px"
+                                            style={{
+                                                backgroundColor: COLORS[index % COLORS.length],
+                                                flexShrink: 0
+                                            }}
+                                        />
+                                        <Typography variant="omega" fontWeight="semiBold" style={{ wordBreak: 'break-word' }}>
+                                            {entry.source}
+                                        </Typography>
+                                    </Flex>
+                                    <Flex direction="column" alignItems="flex-end" gap={1} style={{ flexShrink: 0 }}>
+                                        <Typography variant="omega" fontWeight="bold">
+                                            {entry.count.toLocaleString()}
+                                        </Typography>
+                                        <Typography variant="pi" textColor="neutral600">
+                                            {entry.percentage?.toFixed(1)}%
+                                        </Typography>
+                                    </Flex>
                                 </Flex>
-                                <Flex direction="column" alignItems="flex-end" gap={1}>
-                                    <Typography variant="omega" fontWeight="bold">
-                                        {entry.count.toLocaleString()}
-                                    </Typography>
-                                    <Typography variant="pi" textColor="neutral600">
-                                        {entry.percentage?.toFixed(1)}%
-                                    </Typography>
-                                </Flex>
-                            </Flex>
+                            </Box>
                         ))}
                     </Flex>
 
