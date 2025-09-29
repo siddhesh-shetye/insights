@@ -17,7 +17,7 @@
 - [Captured Parameters](#captured-parameters)  
 - [Ignore Admin Routes](#ignore-admin-routes)  
 - [Example Frontend Request with UTM Parameters](#example-frontend-request-with-utm-parameters)
-
+- [Reference screenshots](#reference-screenshots)
 ---
 
 ## Description
@@ -133,3 +133,17 @@ The plugin will automatically log the following in the Strapi **Insights** colle
 ```
 
 This allows you to track campaign performance, user activity, and platform usage effortlessly.
+
+---
+
+## Reference screenshots
+
+<p align="center">
+  <img src="./screen1.png" alt="Logo" />
+</p>
+
+<p align="center">
+  <img src="./screen2.png" alt="Logo" />
+</p>
+
+---

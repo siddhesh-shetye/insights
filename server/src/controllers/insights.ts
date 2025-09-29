@@ -88,23 +88,45 @@ export default factories.createCoreController(modelName, ({ strapi }) => ({
                 }
             });
 
-            // Calculate percentage changes
-            const calculateChange = (current, previous) => {
-                if (previous === 0) return current > 0 ? '+100%' : '0%';
+            // Calculate percentage changes with mood
+            const calculateChangeWithMood = (current, previous) => {
+                if (previous === 0) {
+                    return {
+                        percentage: current > 0 ? '+100%' : '0%',
+                        mood: current > 0 ? 'positive' : 'neutral'
+                    };
+                }
                 const change = ((current - previous) / previous) * 100;
-                return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+                const percentage = change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+                const mood = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+                return { percentage, mood };
             };
 
+            const totalVisitsChange = calculateChangeWithMood(totalVisits, totalVisitsLastWeek);
+            const uniqueSourcesChange = calculateChangeWithMood(uniqueSources, uniqueSourcesLastWeek);
+            const campaignsChange = calculateChangeWithMood(campaigns, campaignsLastWeek);
+            const todayChange = calculateChangeWithMood(todayVisitors, yesterdayVisitors);
+
             const response = {
-                totalVisits,
-                uniqueSources,
-                campaigns,
-                today: todayVisitors,
-                trends: {
-                    totalVisits: calculateChange(totalVisits, totalVisitsLastWeek),
-                    uniqueSources: calculateChange(uniqueSources, uniqueSourcesLastWeek),
-                    campaigns: calculateChange(campaigns, campaignsLastWeek),
-                    today: calculateChange(todayVisitors, yesterdayVisitors)
+                totalVisits: {
+                    value: totalVisits,
+                    percentage: totalVisitsChange.percentage,
+                    mood: totalVisitsChange.mood
+                },
+                uniqueSources: {
+                    value: uniqueSources,
+                    percentage: uniqueSourcesChange.percentage,
+                    mood: uniqueSourcesChange.mood
+                },
+                campaigns: {
+                    value: campaigns,
+                    percentage: campaignsChange.percentage,
+                    mood: campaignsChange.mood
+                },
+                today: {
+                    value: todayVisitors,
+                    percentage: todayChange.percentage,
+                    mood: todayChange.mood
                 }
             };
 

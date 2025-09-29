@@ -122,9 +122,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                         <StatCard
                             icon={<ChartPie />}
                             label="Total Visits"
-                            value={statsData?.totalVisits?.toLocaleString() ?? "—"}
-                            change={statsData?.trends?.totalVisits}
-                            changeType="negative"
+                            value={statsData?.totalVisits?.value?.toLocaleString() ?? "—"}
+                            change={statsData?.totalVisits?.percentage}
+                            changeType={statsData?.totalVisits?.mood}
                         />
                     </Grid.Item>
 
@@ -132,9 +132,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                         <StatCard
                             icon={<Globe />}
                             label="Traffic Sources"
-                            value={statsData?.uniqueSources ?? "—"}
-                            change={statsData?.trends?.uniqueSources}
-                            changeType="positive"
+                            value={statsData?.uniqueSources?.value?.toLocaleString() ?? "—"}
+                            change={statsData?.uniqueSources?.percentage}
+                            changeType={statsData?.uniqueSources?.mood}
                         />
                     </Grid.Item>
 
@@ -142,9 +142,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                         <StatCard
                             icon={<File />}
                             label="Active Campaigns"
-                            value={statsData?.campaigns ?? "—"}
-                            change={statsData?.trends?.campaigns}
-                            changeType="positive"
+                            value={statsData?.campaigns?.value?.toLocaleString() ?? "—"}
+                            change={statsData?.campaigns?.percentage}
+                            changeType={statsData?.campaigns?.mood}
                         />
                     </Grid.Item>
 
@@ -152,9 +152,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({
                         <StatCard
                             icon={<User />}
                             label="Today's Visitors"
-                            value={statsData?.today ?? "—"}
-                            change={statsData?.trends?.today}
-                            changeType="positive"
+                            value={statsData?.today?.value?.toLocaleString() ?? "—"}
+                            change={statsData?.today?.percentage}
+                            changeType={statsData?.today?.mood}
                         />
                     </Grid.Item>
                 </>
