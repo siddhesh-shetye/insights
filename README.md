@@ -41,13 +41,13 @@ This plugin is useful for monitoring traffic, marketing campaigns, or building c
 Copy the following code and run from your terminal:
 
 ```bash
-yarn add insights
+yarn add insights-strapi
 ```
 
 or
 
 ```bash
-npm i insights
+npm i insights-strapi
 ```
 
 After installation, rebuild Strapi:
